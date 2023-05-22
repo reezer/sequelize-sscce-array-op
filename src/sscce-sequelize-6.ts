@@ -1,4 +1,5 @@
 import { DataTypes, Model } from 'sequelize';
+import { Op } from 'sequelize';
 import { createSequelize6Instance } from '../setup/create-sequelize-instance';
 import { expect } from 'chai';
 import sinon from 'sinon';
@@ -25,6 +26,10 @@ export async function run() {
 
   Foo.init({
     name: DataTypes.TEXT,
+    user_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
   }, {
     sequelize,
     modelName: 'Foo',
@@ -36,6 +41,12 @@ export async function run() {
   await sequelize.sync({ force: true });
   expect(spy).to.have.been.called;
 
-  console.log(await Foo.create({ name: 'TS foo' }));
+  console.log(await Foo.create({ name: 'TS foo', user_id: 1 }));
   expect(await Foo.count()).to.equal(1);
+
+  console.log(await Foo.findAll( {
+	where: {
+		user_id: { [Op.any]: [1] },
+	}
+  }));
 }
